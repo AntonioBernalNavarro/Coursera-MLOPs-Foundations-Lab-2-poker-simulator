@@ -1,10 +1,10 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.245.2/containers/codespaces-linux/.devcontainer/base.Dockerfile
+# Use Bullseye for better compatibility with the pinned 2022 dependencies
+FROM mcr.microsoft.com/devcontainers/python:1-3.10-bullseye
 
-FROM mcr.microsoft.com/vscode/devcontainers/universal:2-focal
+# Remove the Yarn APT source: its GPG key has expired and breaks apt-get update
+RUN rm -f /etc/apt/sources.list.d/yarn.list
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
-
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
+# Now apt-get update works, and we can install make for the Makefile targets
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends make \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
